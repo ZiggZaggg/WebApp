@@ -18,8 +18,8 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore ./WebApp2/WebApp2.sln
+      run: dotnet restore ./WebApp/WebApp2.sln
     - name: Build
-      run: dotnet build --no-restore ./WebApp2/WebApp2.sln
+      run: dotnet build --no-restore ./WebApp/WebApp2.sln
     - name: Test
-      run: dotnet test --no-build --verbosity normal ./WebApp2/
+      run: dotnet test --no-build --verbosity normal ./WebApp/
