@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApp2.Contexts;
+using WebApp2.Helpers;
+using WebApp2.Services;
+using WebApp2.Services.Interfaces;
 
 namespace WebApp2
 {
@@ -27,6 +30,10 @@ namespace WebApp2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            services.AddSingleton<ITokenService, TokenService>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddHttpContextAccessor();
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,6 +45,8 @@ namespace WebApp2
             }
 
             app.UseRouting();
+
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
