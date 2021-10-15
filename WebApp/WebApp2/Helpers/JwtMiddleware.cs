@@ -31,7 +31,7 @@ namespace WebApp2.Helpers
             await next(context);
         }
 
-        private void AttachUserToContext(HttpContext context, string token)
+        public void AttachUserToContext(HttpContext context, string token)
         {
             try
             {
