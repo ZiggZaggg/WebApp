@@ -52,5 +52,21 @@ namespace WebAppIntegrationTest
 
             Assert.DoesNotContain("UserId", httpContextMoq.Object.Items);
         }
+
+        [Fact]
+        public void AttachUserToContext_WrongInputToken()
+        {
+            var httpContextMoq = new Mock<HttpContext>();
+            httpContextMoq.Setup(c => c.Items).Returns(new Dictionary<object, object>());
+            var nextMoq = new Mock<RequestDelegate>();
+            var configMoq = new Mock<IConfiguration>();
+            configMoq.Setup(c => c["TokenKey"]).Returns(config["TokenKey"]);
+            string token = "abcdefghijklmnopqrstuvwxyz";
+            var jwtMiddleware = new JwtMiddleware(nextMoq.Object, configMoq.Object);
+
+            jwtMiddleware.AttachUserToContext(httpContextMoq.Object, token);
+
+            Assert.DoesNotContain("UserId", httpContextMoq.Object.Items);
+        }
     }
 }
