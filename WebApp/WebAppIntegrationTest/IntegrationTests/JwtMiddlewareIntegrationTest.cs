@@ -27,14 +27,14 @@ namespace WebAppIntegrationTest
             httpContextMoq.Setup(c => c.Items).Returns(new Dictionary<object, object>());
             var nextMoq = new Mock<RequestDelegate>();
             var configMoq = new Mock<IConfiguration>();
-            configMoq.Setup(c => c.GetValue(typeof(string), "TokenKey")).Returns(config["TokenKey"]);
-            var tokenService = new TokenService(config);
+            configMoq.Setup(c => c["TokenKey"]).Returns(config["TokenKey"]);
+            var tokenService = new TokenService(configMoq.Object);
             var token = tokenService.GenerateJwtToken(new User { Id = 1 });
             var jwtMiddleware = new JwtMiddleware(nextMoq.Object, configMoq.Object);
 
             jwtMiddleware.AttachUserToContext(httpContextMoq.Object, token);
 
-
+            Assert.Equal(1, (long)httpContextMoq.Object.Items["UserId"]);
         }
     }
 }
