@@ -24,7 +24,6 @@ namespace WebAppIntegrationTest
         {
             this.configuration = configuration;
             this.configuration.Bind(new ConfigurationBuilder().AddUserSecrets("2b450229-593e-4df0-923b-fe95840b119b"));
-
         }
 
 
