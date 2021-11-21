@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,35 +8,34 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using WebApp2.Contexts;
 using WebApp2.Helpers;
 using WebApp2.Services;
 using WebApp2.Services.Interfaces;
 
-namespace WebApp2
+namespace WebAppIntegrationTest
 {
-    public class Startup
+    public class TestStartup
     {
-        private readonly IConfiguration configuration;
-
-        public Startup(IConfiguration configuration)
+        protected readonly IConfiguration configuration;
+        public TestStartup(IConfiguration configuration)
         {
             this.configuration = configuration;
+            this.configuration.Bind(new ConfigurationBuilder().AddUserSecrets("2b450229-593e-4df0-923b-fe95840b119b"));
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            services.AddSingleton<ITokenService, TokenService>();
+            ConfigureDatabase(services);
             services.AddTransient<IUserService, UserService>();
+            services.AddSingleton<ITokenService, TokenService>();
             services.AddHttpContextAccessor();
             services.AddControllers();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -48,10 +47,17 @@ namespace WebApp2
 
             app.UseMiddleware<JwtMiddleware>();
 
-            app.UseEndpoints(endpoints =>
+            app.UseEndpoints(endpoints => 
             {
                 endpoints.MapDefaultControllerRoute();
             });
+        }
+
+        public void ConfigureDatabase(IServiceCollection services)
+        {
+            var inMemorySqlite = new SqliteConnection("Datasource=:memory:");
+            inMemorySqlite.Open();
+            services.AddDbContext<ApplicationContext>(options => options.UseSqlite(inMemorySqlite));
         }
     }
 }
